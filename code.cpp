@@ -2,62 +2,126 @@
 using namespace std;
 
 //user class
-class User 
-{
+class User {
 protected:
     int id;
     string name;
+    string email;
+    string pass;
 public:
     virtual void show() = 0;
+    virtual bool loginE(string) = 0;
+    virtual bool loginP(string) = 0;
+    virtual ~User() {}
 };
 
-//voter class
-class Voter : public User 
-{
-    bool voted;
+class Voter : public User {
+private:
+    int voted;
 public:
-    Voter() 
-    {
+    Voter() {
         id = 0;
         name = "";
-        voted = false;
+        email = "";
+        pass = "";
+        voted = 0;
     }
-
-    Voter(int i, string n) 
-    {
+    Voter(int i, string n, string e, string p, int v) {
         id = i;
         name = n;
-        voted = false;
+        email = e;
+        pass = p;
+        voted = v;
     }
 
-    void markVoted() 
-    {
-        voted = true;
+    Voter(int i, string n, string e, string p) {
+        id = i;
+        name = n;
+        email = e;
+        pass = p;
+        voted = 0;
+
+        ofstream fout1("votedNationals.txt", ios::app);
+        ofstream fout2("votedLocals.txt", ios::app);
+
+        if (fout1.is_open() && fout2.is_open()) {
+            fout1 << id << "\t" << name << "\t" << email << "\t" << pass << "\t" << voted << endl;
+            fout2 << id << "\t" << name << "\t" << email << "\t" << pass << "\t" << voted << endl;
+            fout1.close();
+            fout2.close();
+        }
+        else {
+            cout << "\nError opening one of the files!\n\n";
+        }
     }
 
-    bool hasVoted() 
-    {
-        return voted;
+
+    void markVoted(const string& filename) {
+        voted++;
+
+        ifstream fin(filename);
+        ofstream temp("temp.txt");
+        string line;
+
+        while (getline(fin, line)) {
+            stringstream ss(line);
+            int fileId, fileVoted;
+            string fileName, fileEmail, filePass;
+
+            ss >> fileId;
+            ss.ignore(); // Ignore tab
+            getline(ss, fileName, '\t');
+            getline(ss, fileEmail, '\t');
+            getline(ss, filePass, '\t');
+            ss >> fileVoted;
+
+            if (fileId == id) {
+                fileVoted = voted;
+            }
+
+            temp << fileId << "\t" << fileName << "\t" << fileEmail << "\t" << filePass << "\t" << fileVoted << endl;
+        }
+
+        fin.close();
+        temp.close();
+
+        remove(filename.c_str());
+        rename("temp.txt", filename.c_str());
     }
 
-    int getID() 
-    {
+    void removeVote() {
+        voted--;
+    }
+
+    bool hasVoted() {
+        if (voted == 1)
+            return true;
+        return false;
+    }
+    bool hasDoubleVoted() {
+        if (voted == 2)
+            return true;
+        return false;
+    }
+
+    int getID() {
         return id;
     }
 
-    string getName() 
-    {
+    string getName() {
         return name;
     }
 
-    void show() 
-    {
-        cout << "Voter ID: " << id << ", Name: " << name << ", Voted: ";  
-        if (voted) {
-            cout << "YES" << endl;
-        } else {
-            cout << "NO" << endl;
-        }
+    void show() {
+        cout << "Voter ID: " << id << ", Name: " << name << ", Voted: " << (voted ? "Yes" : "No") << endl;
+    }
+
+    bool loginE(string e) {
+        return e == email;
+    }
+
+    bool loginP(string p) {
+        return p == pass;
     }
 };
 
