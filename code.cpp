@@ -1,8 +1,13 @@
 #include <iostream>
+#include <string>
+#include <fstream>
+#include <sstream>
+
 using namespace std;
 
-//user class
-class User {
+// User Class
+class User 
+{
 protected:
     int id;
     string name;
@@ -15,18 +20,21 @@ public:
     virtual ~User() {}
 };
 
-class Voter : public User {
+class Voter : public User 
+{
 private:
     int voted;
 public:
-    Voter() {
+    Voter() 
+    {
         id = 0;
         name = "";
         email = "";
         pass = "";
         voted = 0;
     }
-    Voter(int i, string n, string e, string p, int v) {
+    Voter(int i, string n, string e, string p, int v) 
+    {
         id = i;
         name = n;
         email = e;
@@ -34,7 +42,8 @@ public:
         voted = v;
     }
 
-    Voter(int i, string n, string e, string p) {
+    Voter(int i, string n, string e, string p) 
+    {
         id = i;
         name = n;
         email = e;
@@ -44,26 +53,29 @@ public:
         ofstream fout1("votedNationals.txt", ios::app);
         ofstream fout2("votedLocals.txt", ios::app);
 
-        if (fout1.is_open() && fout2.is_open()) {
+        if (fout1.is_open() && fout2.is_open()) 
+        {
             fout1 << id << "\t" << name << "\t" << email << "\t" << pass << "\t" << voted << endl;
             fout2 << id << "\t" << name << "\t" << email << "\t" << pass << "\t" << voted << endl;
             fout1.close();
             fout2.close();
         }
-        else {
+        else 
+        {
             cout << "\nError opening one of the files!\n\n";
         }
     }
 
-
-    void markVoted(const string& filename) {
+    void markVoted(const string& filename) 
+    {
         voted++;
 
         ifstream fin(filename);
         ofstream temp("temp.txt");
         string line;
 
-        while (getline(fin, line)) {
+        while (getline(fin, line)) 
+        {
             stringstream ss(line);
             int fileId, fileVoted;
             string fileName, fileEmail, filePass;
@@ -75,7 +87,8 @@ public:
             getline(ss, filePass, '\t');
             ss >> fileVoted;
 
-            if (fileId == id) {
+            if (fileId == id) 
+            {
                 fileVoted = voted;
             }
 
@@ -89,133 +102,155 @@ public:
         rename("temp.txt", filename.c_str());
     }
 
-    void removeVote() {
+    void removeVote() 
+    {
         voted--;
     }
 
-    bool hasVoted() {
+    bool hasVoted() 
+    {
         if (voted == 1)
             return true;
         return false;
     }
-    bool hasDoubleVoted() {
+    bool hasDoubleVoted() 
+    {
         if (voted == 2)
             return true;
         return false;
     }
 
-    int getID() {
+    int getID() 
+    {
         return id;
     }
 
-    string getName() {
+    string getName() 
+    {
         return name;
     }
 
-    void show() {
+    void show() 
+    {
         cout << "Voter ID: " << id << ", Name: " << name << ", Voted: " << (voted ? "Yes" : "No") << endl;
     }
 
-    bool loginE(string e) {
+    bool loginE(string e) 
+    {
         return e == email;
     }
 
-    bool loginP(string p) {
+    bool loginP(string p) 
+    {
         return p == pass;
     }
 };
 
-// Admin class
-class Admin : public User
+//admin class
+class Admin : public User 
 {
-    string pass;
 public:
-    Admin()
+    Admin() 
     {
         id = 0;
         name = "";
+        email = "";
         pass = "";
     }
 
-    Admin(int i, string n, string p)
+    Admin(int i, string n, string e, string p) 
     {
         id = i;
         name = n;
+        email = e;
         pass = p;
     }
 
-    bool login(string p)
+    bool loginE(string e) 
+    {
+        return e == email;
+    }
+
+    bool loginP(string p) 
     {
         return p == pass;
     }
 
-    void show()
+    void show() 
     {
-        cout << "Admin: " << name << endl;
+        cout << "Admin: " << name << ", Email: " << email << endl;
     }
 };
 
-// Election base class
-class Election {
-protected:
-    string title;
-    int cCount;
-    string* cands;
-    int* votes;
-
+// Candidate Class 
+class Candidate 
+{
+private:
+    string name;
+    string party;
+    int votes;
 public:
-    Election() {
-        title = "";
-        cCount = 0;
-        cands = nullptr;
-        votes = nullptr;
-    }
+    Candidate() : name(""), party(""), votes(0) {}
 
-    Election(string t, int c) {
-        title = t;
-        cCount = c;
-        cands = new string[cCount];
-        votes = new int[cCount];
-        for (int i = 0; i < cCount; i++) {
-            votes[i] = 0;
-            cands[i] = "";
+    Candidate(string n, string p) : name(n), party(p), votes(0) {}
+
+    void incrementVotes(int candidateNumberToVote, const string& filename) 
+    {
+        votes++;
+        ifstream fin(filename);
+        ofstream temp("temp.txt");
+        string line;
+
+        while (getline(fin, line)) 
+        {
+            stringstream ss(line);
+            int candidateNumber, votesFromFile;
+            string nameFromFile, partyFromFile;
+
+            ss >> candidateNumber;
+            ss.ignore();
+            getline(ss, nameFromFile, '\t');
+            getline(ss, partyFromFile, '\t');
+            ss >> votesFromFile;
+
+            if (candidateNumber == candidateNumberToVote) 
+            {
+                votesFromFile++;
+            }
+
+            temp << candidateNumber << "\t" << nameFromFile << "\t" << partyFromFile << "\t" << votesFromFile << endl;
         }
+
+        fin.close();
+        temp.close();
+
+        remove(filename.c_str());
+        rename("temp.txt", filename.c_str());
+        cout << "\nVoted Succesfully !\n\n";
     }
 
-    virtual ~Election() {
-        delete[] cands;
-        delete[] votes;
+    int getVoteCount() const 
+    {
+        return votes;
     }
-
-    virtual void begin() = 0;
-
-    void setCand(int index, string n) {
-        if (index >= 0 && index < cCount)
-            cands[index] = n;
+    string getCandidateInfo() const 
+    {
+        return "Name: " + name + ", Party: " + party + ", Votes: " + to_string(votes);
     }
-
-    void vote(int choice) {
-        if (choice >= 0 && choice < cCount)
-            votes[choice]++;
+    void setName(string n) 
+    { 
+        name = n; 
     }
-
-    void results() {
-        cout << "\n=== Results for " << title << " ===\n";
-        for (int i = 0; i < cCount; i++) {
-            cout << cands[i] << " - Votes: " << votes[i] << endl;
-        }
+    void setParty(string p) 
+    { 
+        party = p; 
     }
-
-    int getCount() {
-        return cCount;
+    void setVotes(int v) 
+    { 
+        votes = v; 
     }
-
-    string getCand(int i) {
-        if (i >= 0 && i < cCount)
-            return cands[i];
-        return "";
+    string getName() const 
+    { 
+        return name; 
     }
 };
-
-// derived classes: 
-// national election , local election (todo)
