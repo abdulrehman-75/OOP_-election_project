@@ -132,6 +132,9 @@ public:
     {
         return name;
     }
+    string getEmail() {
+        return email;
+    }
     int getVotes() {
         return voted;
     }
