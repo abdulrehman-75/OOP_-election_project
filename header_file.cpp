@@ -255,10 +255,9 @@ public:
     { 
         votes = v; 
     }
-    string getName() const 
-    { 
-        return name; 
-    }
+    string getName() const {  return name; }
+    string getName() const { return party; }
+    int getVotes() const { return votes; }
 };
 
 class Election {
