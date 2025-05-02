@@ -132,6 +132,9 @@ public:
     {
         return name;
     }
+    int getVotes() {
+        return voted;
+    }
 
     void show() 
     {
