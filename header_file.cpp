@@ -256,7 +256,7 @@ public:
         votes = v; 
     }
     string getName() const {  return name; }
-    string getName() const { return party; }
+    string getParty() const { return party; }
     int getVotes() const { return votes; }
 };
 
