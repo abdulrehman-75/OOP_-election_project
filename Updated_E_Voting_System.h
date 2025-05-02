@@ -341,22 +341,48 @@ class Election {
         void addCandidates() override {
             ofstream fout("localCandidates.txt", ios::app);
             if (!fout.is_open()) return;
-    
+
             int newCandidates = localCount - nextLocalIndex;
             for (int i = 0; i < newCandidates; ++i) {
                 string name, party;
                 int candidateNumber = nextLocalIndex + 1;
+
                 cout << "Enter name of local candidate " << candidateNumber << ": ";
+                cin.ignore();
                 getline(cin, name);
-                cout << "Enter party of local candidate " << candidateNumber << ": ";
-                getline(cin, party);
-    
+
+                char partyChoice;
+                do {
+                    cout << "Select party for candidate " << candidateNumber << ":\n";
+                    cout << "1. PMLN\n";
+                    cout << "2. PTI\n";
+                    cout << "3. PPP\n";
+                    cout << "Enter choice (1/2/3): ";
+                    partyChoice = _getch();
+                    cout << partyChoice << endl;
+
+                    switch (partyChoice) {
+                    case '1':
+                        party = "PMLN";
+                        break;
+                    case '2':
+                        party = "PTI";
+                        break;
+                    case '3':
+                        party = "PPP";
+                        break;
+                    default:
+                        cout << "Invalid choice. Please select 1, 2, or 3.\n";
+                    }
+                } while (partyChoice != '1' && partyChoice != '2' && partyChoice != '3');
+
                 localCandidates[nextLocalIndex].setName(name);
                 localCandidates[nextLocalIndex].setParty(party);
                 localCandidates[nextLocalIndex].setVotes(0);
                 fout << candidateNumber << "\t" << name << "\t" << party << "\t0\n";
                 nextLocalIndex++;
             }
+
             fout.close();
         }
     
@@ -423,22 +449,48 @@ class Election {
         void addCandidates() override {
             ofstream fout("nationalCandidates.txt", ios::app);
             if (!fout.is_open()) return;
-    
+
             int newCandidates = nationalCount - nextNationalIndex;
             for (int i = 0; i < newCandidates; ++i) {
                 string name, party;
                 int candidateNumber = nextNationalIndex + 1;
+
                 cout << "Enter name of national candidate " << candidateNumber << ": ";
+                cin.ignore();
                 getline(cin, name);
-                cout << "Enter party of national candidate " << candidateNumber << ": ";
-                getline(cin, party);
-    
+
+                char partyChoice;
+                do {
+                    cout << "Select party for candidate " << candidateNumber << ":\n";
+                    cout << "1. PMLN\n";
+                    cout << "2. PTI\n";
+                    cout << "3. PPP\n";
+                    cout << "Enter choice (1/2/3): ";
+                    partyChoice = _getch();
+                    cout << partyChoice << endl;
+
+                    switch (partyChoice) {
+                    case '1':
+                        party = "PMLN";
+                        break;
+                    case '2':
+                        party = "PTI";
+                        break;
+                    case '3':
+                        party = "PPP";
+                        break;
+                    default:
+                        cout << "Invalid choice. Please select 1, 2, or 3.\n";
+                    }
+                } while (partyChoice != '1' && partyChoice != '2' && partyChoice != '3');
+
                 nationalCandidates[nextNationalIndex].setName(name);
                 nationalCandidates[nextNationalIndex].setParty(party);
                 nationalCandidates[nextNationalIndex].setVotes(0);
                 fout << candidateNumber << "\t" << name << "\t" << party << "\t0\n";
                 nextNationalIndex++;
             }
+
             fout.close();
         }
     
