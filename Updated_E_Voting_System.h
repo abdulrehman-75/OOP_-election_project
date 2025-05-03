@@ -69,33 +69,35 @@ public:
         }
     }
 
-    void markVoted(const string& filename) 
-    {
+    void markVoted(const string& filename) {
         voted++;
 
         ifstream fin(filename);
         ofstream temp("temp.txt");
         string line;
 
-        while (getline(fin, line)) 
-        {
+        while (getline(fin, line)) {
+            if (line.empty()) continue;
+
             stringstream ss(line);
             int fileId, fileVoted;
             string fileName, fileEmail, filePass;
 
             ss >> fileId;
-            ss.ignore(); // Ignore tab
+            ss.ignore(); 
             getline(ss, fileName, '\t');
             getline(ss, fileEmail, '\t');
             getline(ss, filePass, '\t');
             ss >> fileVoted;
 
-            if (fileId == id) 
-            {
+            // Ensure all parts are present before writing
+            if (fileName.empty() || fileEmail.empty() || filePass.empty()) continue;
+
+            if (fileId == id) {
                 fileVoted = voted;
             }
 
-            temp << fileId << "\t" << fileName << "\t" << fileEmail << "\t" << filePass << "\t" << fileVoted << endl;
+            temp << fileId << "\t" << fileName << "\t" << fileEmail << "\t" << filePass << "\t" << fileVoted << '\n';
         }
 
         fin.close();
