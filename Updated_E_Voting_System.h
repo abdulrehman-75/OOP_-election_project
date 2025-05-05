@@ -510,5 +510,40 @@ class Election {
         }
     };
 
+
+    //main 
+
+    int main() 
+    {
+        char choice;
+        do {
+            system("cls");
+            cout << "==============================\n";
+            cout << "   ELECTRONIC VOTING SYSTEM   \n";
+            cout << "==============================\n";
+            cout << "1. Login as Admin\n";
+            cout << "2. Login as Voter\n";
+            cout << "3. View Rules\n";
+            cout << "4. Exit\n";
+            cout << "\nEnter Your Choice\n";
+
+            choice = _getch();
+            cout << choice << endl;
+
+            switch (choice) {
+            case '1': adminPortal(); break;
+            case '2': votersPortal(); break;
+            case '3': rules(); break;
+            case '4':
+                cout << "\nExiting the program.\n";
+                break;
+            default:
+                cout << "\nInvalid choice. Please try again.\n";
+                Sleep(1000);
+            }
+        } while (choice != '4');
+
+        return 0;
+    }
     
     #endif
