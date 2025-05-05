@@ -545,5 +545,34 @@ class Election {
 
         return 0;
     }
+
+    void adminPortal() {
+        system("cls");
+        User* admin = new Admin(15, "Aizaz Akmal", "admin123", "qwer");
+
+        string email, pass;
+        cout << "\n--- Admin Login ---\n";
+        cout << "Enter Email: ";
+        getline(cin, email);
+        cout << "Enter Password: ";
+        pass = getMaskedPassword();
+
+        if (admin->loginE(email) && admin->loginP(pass)) {
+            admin->show();
+            system("pause");
+            adminDashboard();
+        }
+        else {
+            cout << "\nEntered email or password is incorrect!\n";
+            cout << "Returning back to main menu...";
+            Sleep(1500);
+            cout << "...\n";
+        }
+
+        delete admin;
+    }
+    // admin dshboard todo;
+    void adminDashboard(){}
+    
     
     #endif
