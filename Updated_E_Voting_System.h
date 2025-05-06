@@ -546,7 +546,8 @@ class Election {
         return 0;
     }
 
-    void adminPortal() {
+    void adminPortal() 
+    {
         system("cls");
         User* admin = new Admin(15, "Aizaz Akmal", "admin123", "qwer");
 
@@ -571,8 +572,61 @@ class Election {
 
         delete admin;
     }
-    // admin dshboard todo;
-    void adminDashboard(){}
-    
+
+    void adminDashboard() 
+    {
+         char choice;
+         do {
+             system("cls");
+             cout << "=============================\n";
+             cout << "        ADMIN DASHBOARD      \n";
+             cout << "=============================\n";
+             cout << "1. Create Local Election\n";
+             cout << "2. Create National Election\n";
+             cout << "3. Register New Voters\n";
+             cout << "4. Display Existing Voters\n";
+             cout << "5. Logout From Admin\n";
+             cout << "6. Start Voting Period\n";
+             cout << "7. End Voting Period\n";
+             cout << "8. View Election Results\n";
+             cout << "\nEnter Your Choice\n";
+
+               choice = _getch();
+               cout << choice << endl;
+
+             switch (choice) 
+             {
+             case '1': 
+                 createLocalElection(); 
+                 break;
+             case '2': 
+                 createNationalElection(); 
+                 break;
+             case '3': 
+                 registerVoters(); 
+                 break;
+             case '4': 
+                 displayVoters(); 
+                 break;
+             case '5':
+                 cout << "\nLogging out from admin dashboard...";
+                 Sleep(700); cout << "......"; Sleep(700); cout << "....."; Sleep(300);
+                 break;
+             case '6': 
+                 setVotingPeriodStatus(true); 
+                 break;
+             case '7': 
+                 setVotingPeriodStatus(false);  
+                 break;
+             case '8': 
+                 viewResults(); 
+                 break;
+             default:
+                 cout << "\nInvalid choice. Please try again.\n";
+                 Sleep(1000);
+             }
+         } 
+         while (choice != '5');
+    }
     
     #endif
