@@ -1,0 +1,4 @@
+1	abdul	PMLN	0
+2	rehman	PTI	2
+3	naeem	PPP	0
+4	arry	PPP	0

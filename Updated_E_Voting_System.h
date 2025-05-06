@@ -3,12 +3,12 @@
 #define UPDATED_E_VOTING_SYSTEM_H
 #include <iostream>
 #include <string>
+#include <conio.h>
 #include <fstream>
 #include <sstream>
 
 using namespace std;
 
-// User Class
 class User 
 {
 protected:
@@ -157,7 +157,6 @@ public:
     }
 };
 
-//admin class
 class Admin : public User 
 {
 public:
@@ -193,7 +192,6 @@ public:
     }
 };
 
-// Candidate Class 
 class Candidate 
 {
 private:
@@ -345,12 +343,12 @@ class Election {
             if (!fout.is_open()) return;
 
             int newCandidates = localCount - nextLocalIndex;
+            cin.ignore();
             for (int i = 0; i < newCandidates; ++i) {
                 string name, party;
                 int candidateNumber = nextLocalIndex + 1;
 
                 cout << "Enter name of local candidate " << candidateNumber << ": ";
-                cin.ignore();
                 getline(cin, name);
 
                 char partyChoice;
