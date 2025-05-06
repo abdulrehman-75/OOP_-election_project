@@ -1,578 +1,353 @@
-
-#ifndef UPDATED_E_VOTING_SYSTEM_H
-#define UPDATED_E_VOTING_SYSTEM_H
+#include "Updated_E_Voting_system.h"
 #include <iostream>
+#include <conio.h> 
 #include <string>
-#include <fstream>
 #include <sstream>
+#include <fstream>
+#include <windows.h>
 
 using namespace std;
 
-// User Class
-class User 
-{
-protected:
-    int id;
-    string name;
-    string email;
-    string pass;
-public:
-    virtual void show() = 0;
-    virtual bool loginE(string) = 0;
-    virtual bool loginP(string) = 0;
-    virtual ~User() {}
-};
 
-class Voter : public User 
-{
-private:
-    int voted;
-public:
-    Voter() 
-    {
-        id = 0;
-        name = "";
-        email = "";
-        pass = "";
-        voted = 0;
+void rules() {
+
+}
+
+string getMaskedPassword() {
+
+}
+
+int loadVotersFromFile(Voter* voters[], int index, const string& filename) {
+
+}
+
+string getElectionTitle(bool isLocal) {
+
+}
+
+void createLocalElection() {
+
+}
+
+void createNationalElection() {
+
+}
+
+void registerVoters() {
+    Voter* voters[50];
+    int index = 0;
+    index = loadVotersFromFile(voters, index, "votedLocals.txt");
+
+    int count;
+    cout << "Enter the number of voters you want to register: ";
+    cin >> count;
+    if (cin.fail() || count <= 0 || count > 50 - index) {
+        cin.clear(); cin.ignore(1000, '\n');
+        cout << "Invalid input. Returning to menu...\n";
+        Sleep(1000);
+        return;
     }
-    Voter(int i, string n, string e, string p, int v) 
-    {
-        id = i;
-        name = n;
-        email = e;
-        pass = p;
-        voted = v;
-    }
+    cin.ignore();
 
-    Voter(int i, string n, string e, string p) 
-    {
-        id = i;
-        name = n;
-        email = e;
-        pass = p;
-        voted = 0;
-
-        ofstream fout1("votedNationals.txt", ios::app);
-        ofstream fout2("votedLocals.txt", ios::app);
-
-        if (fout1.is_open() && fout2.is_open()) 
-        {
-            fout1 << id << "\t" << name << "\t" << email << "\t" << pass << "\t" << voted << endl;
-            fout2 << id << "\t" << name << "\t" << email << "\t" << pass << "\t" << voted << endl;
-            fout1.close();
-            fout2.close();
-        }
-        else 
-        {
-            cout << "\nError opening one of the files!\n\n";
-        }
-    }
-
-    void markVoted(const string& filename) {
-        voted++;
-
-        ifstream fin(filename);
-        ofstream temp("temp.txt");
-        string line;
-
-        while (getline(fin, line)) {
-            if (line.empty()) continue;
-
-            stringstream ss(line);
-            int fileId, fileVoted;
-            string fileName, fileEmail, filePass;
-
-            ss >> fileId;
-            ss.ignore(); 
-            getline(ss, fileName, '\t');
-            getline(ss, fileEmail, '\t');
-            getline(ss, filePass, '\t');
-            ss >> fileVoted;
-
-            // Ensure all parts are present before writing
-            if (fileName.empty() || fileEmail.empty() || filePass.empty()) continue;
-
-            if (fileId == id) {
-                fileVoted = voted;
-            }
-
-            temp << fileId << "\t" << fileName << "\t" << fileEmail << "\t" << filePass << "\t" << fileVoted << '\n';
-        }
-
-        fin.close();
-        temp.close();
-
-        remove(filename.c_str());
-        rename("temp.txt", filename.c_str());
-    }
-
-    void removeVote() 
-    {
-        voted--;
-    }
-
-    bool hasVoted() 
-    {
-        if (voted == 1)
-            return true;
-        return false;
-    }
-    bool hasDoubleVoted() 
-    {
-        if (voted == 2)
-            return true;
-        return false;
-    }
-
-    int getID() 
-    {
-        return id;
-    }
-
-    string getName() 
-    {
-        return name;
-    }
-    string getEmail() {
-        return email;
-    }
-    int getVotes() {
-        return voted;
-    }
-
-    void show() 
-    {
-        cout << "Voter ID: " << id << ", Name: " << name << ", Voted: " << (voted ? "Yes" : "No") << endl;
-    }
-
-    bool loginE(string e) 
-    {
-        return e == email;
-    }
-
-    bool loginP(string p) 
-    {
-        return p == pass;
-    }
-};
-
-//admin class
-class Admin : public User 
-{
-public:
-    Admin() 
-    {
-        id = 0;
-        name = "";
-        email = "";
-        pass = "";
-    }
-
-    Admin(int i, string n, string e, string p) 
-    {
-        id = i;
-        name = n;
-        email = e;
-        pass = p;
-    }
-
-    bool loginE(string e) 
-    {
-        return e == email;
-    }
-
-    bool loginP(string p) 
-    {
-        return p == pass;
-    }
-
-    void show() 
-    {
-        cout << "Admin: " << name << ", Email: " << email << endl;
-    }
-};
-
-// Candidate Class 
-class Candidate 
-{
-private:
-    string name;
-    string party;
-    int votes;
-public:
-    Candidate() : name(""), party(""), votes(0) {}
-
-    Candidate(string n, string p) : name(n), party(p), votes(0) {}
-
-    void incrementVotes(int candidateNumberToVote, const string& filename) 
-    {
-        votes++;
-        ifstream fin(filename);
-        ofstream temp("temp.txt");
-        string line;
-
-        while (getline(fin, line)) 
-        {
-            stringstream ss(line);
-            int candidateNumber, votesFromFile;
-            string nameFromFile, partyFromFile;
-
-            ss >> candidateNumber;
-            ss.ignore();
-            getline(ss, nameFromFile, '\t');
-            getline(ss, partyFromFile, '\t');
-            ss >> votesFromFile;
-
-            if (candidateNumber == candidateNumberToVote) 
-            {
-                votesFromFile++;
-            }
-
-            temp << candidateNumber << "\t" << nameFromFile << "\t" << partyFromFile << "\t" << votesFromFile << endl;
-        }
-
-        fin.close();
-        temp.close();
-
-        remove(filename.c_str());
-        rename("temp.txt", filename.c_str());
-        cout << "\nVoted Succesfully !\n\n";
-    }
-
-    int getVoteCount() const 
-    {
-        return votes;
-    }
-    string getCandidateInfo() const 
-    {
-        return "Name: " + name + ", Party: " + party + ", Votes: " + to_string(votes);
-    }
-    void setName(string n) 
-    { 
-        name = n; 
-    }
-    void setParty(string p) 
-    { 
-        party = p; 
-    }
-    void setVotes(int v) 
-    { 
-        votes = v; 
-    }
-    string getName() const {  return name; }
-    string getParty() const { return party; }
-    int getVotes() const { return votes; }
-};
-
-class Election {
-    protected:
-        string title;
-        int localCount;
-        int nationalCount;
-        Candidate* localCandidates;
-        Candidate* nationalCandidates;
-        int nextLocalIndex;
-        int nextNationalIndex;
-    
-    public:
-        Election() : title(""), localCount(0), nationalCount(0), localCandidates(nullptr), nationalCandidates(nullptr), nextLocalIndex(0), nextNationalIndex(0) {}
-        virtual ~Election() {
-            if (localCandidates) delete[] localCandidates;
-            if (nationalCandidates) delete[] nationalCandidates;
-        }
-    
-        virtual void begin() = 0;
-        virtual void loadCandidates() = 0;
-        virtual void addCandidates() = 0;
-        virtual void vote(int index) = 0;
-        virtual void showResults() const = 0;
-    
-        int getLocalCandidateCount() const { return nextLocalIndex; }
-        int getNationalCandidateCount() const { return nextNationalIndex; }
-        int getLocalCapacity() const { return localCount; }
-        int getNationalCapacity() const { return nationalCount; }
-    };
-    
-    class LocalElection : public Election {
-    protected:
-        int countExistingCandidates(const string& filename) {
-            ifstream fin(filename);
-            string line;
-            int count = 0;
-            while (getline(fin, line)) if (!line.empty()) count++;
-            return count;
-        }
-    
-    public:
-        LocalElection(string t, int count) {
-            title = t;
-            int existing = countExistingCandidates("localCandidates.txt");
-            localCount = existing + count;
-            localCandidates = new Candidate[localCount];
-            nextLocalIndex = 0;
-        }
-    
-        void begin() override {
-            loadCandidates();
-            addCandidates();
-            cout << "\nAdded successfully !\n\n";
-        }
-    
-        void loadCandidates() override {
-            ifstream fin("localCandidates.txt");
-            if (!fin.is_open()) return;
-    
-            string line;
-            while (getline(fin, line) && nextLocalIndex < localCount) {
-                string idStr, name, party;
-                int votes;
-                stringstream ss(line);
-                ss >> idStr >> name;
-                ss >> ws;
-                getline(ss, party, '\t');
-                ss >> votes;
-                localCandidates[nextLocalIndex].setName(name);
-                localCandidates[nextLocalIndex].setParty(party);
-                localCandidates[nextLocalIndex].setVotes(votes);
-                nextLocalIndex++;
-            }
-            fin.close();
-        }
-    
-        void addCandidates() override {
-            ofstream fout("localCandidates.txt", ios::app);
-            if (!fout.is_open()) return;
-
-            int newCandidates = localCount - nextLocalIndex;
-            for (int i = 0; i < newCandidates; ++i) {
-                string name, party;
-                int candidateNumber = nextLocalIndex + 1;
-
-                cout << "Enter name of local candidate " << candidateNumber << ": ";
-                cin.ignore();
-                getline(cin, name);
-
-                char partyChoice;
-                do {
-                    cout << "Select party for candidate " << candidateNumber << ":\n";
-                    cout << "1. PMLN\n";
-                    cout << "2. PTI\n";
-                    cout << "3. PPP\n";
-                    cout << "Enter choice (1/2/3): ";
-                    partyChoice = _getch();
-                    cout << partyChoice << endl;
-
-                    switch (partyChoice) {
-                    case '1':
-                        party = "PMLN";
-                        break;
-                    case '2':
-                        party = "PTI";
-                        break;
-                    case '3':
-                        party = "PPP";
-                        break;
-                    default:
-                        cout << "Invalid choice. Please select 1, 2, or 3.\n";
-                    }
-                } while (partyChoice != '1' && partyChoice != '2' && partyChoice != '3');
-
-                localCandidates[nextLocalIndex].setName(name);
-                localCandidates[nextLocalIndex].setParty(party);
-                localCandidates[nextLocalIndex].setVotes(0);
-                fout << candidateNumber << "\t" << name << "\t" << party << "\t0\n";
-                nextLocalIndex++;
-            }
-
-            fout.close();
-        }
-    
-        void vote(int index) override {
-            if (index >= 1 && index <= nextLocalIndex)
-                localCandidates[index - 1].incrementVotes(index, "localCandidates.txt");
-            else
-                cout << "Invalid local candidate index!\n";
-        }
-    
-        void showResults() const override {
-            cout << "\n=== Local Election Results for " << title << " ===\n";
-            for (int i = 0; i < nextLocalIndex; ++i)
-                cout << localCandidates[i].getCandidateInfo() << endl;
-        }
-    };
-    
-    class NationalElection : public Election {
-    protected:
-        int countExistingCandidates(const string& filename) {
-            ifstream fin(filename);
-            string line;
-            int count = 0;
-            while (getline(fin, line)) if (!line.empty()) count++;
-            return count;
-        }
-    
-    public:
-        NationalElection(string t, int count) {
-            title = t;
-            int existing = countExistingCandidates("nationalCandidates.txt");
-            nationalCount = existing + count;
-            nationalCandidates = new Candidate[nationalCount];
-            nextNationalIndex = 0;
-        }
-    
-        void begin() override {
-            loadCandidates();
-            addCandidates();
-            cout << "\nAdded successfully !\n\n";
-        }
-    
-        void loadCandidates() override {
-            ifstream fin("nationalCandidates.txt");
-            if (!fin.is_open()) return;
-    
-            string line;
-            while (getline(fin, line) && nextNationalIndex < nationalCount) {
-                string idStr, name, party;
-                int votes;
-                stringstream ss(line);
-                ss >> idStr >> name;
-                ss >> ws;
-                getline(ss, party, '\t');
-                ss >> votes;
-                nationalCandidates[nextNationalIndex].setName(name);
-                nationalCandidates[nextNationalIndex].setParty(party);
-                nationalCandidates[nextNationalIndex].setVotes(votes);
-                nextNationalIndex++;
-            }
-            fin.close();
-        }
-    
-        void addCandidates() override {
-            ofstream fout("nationalCandidates.txt", ios::app);
-            if (!fout.is_open()) return;
-
-            int newCandidates = nationalCount - nextNationalIndex;
-            for (int i = 0; i < newCandidates; ++i) {
-                string name, party;
-                int candidateNumber = nextNationalIndex + 1;
-
-                cout << "Enter name of national candidate " << candidateNumber << ": ";
-                cin.ignore();
-                getline(cin, name);
-
-                char partyChoice;
-                do {
-                    cout << "Select party for candidate " << candidateNumber << ":\n";
-                    cout << "1. PMLN\n";
-                    cout << "2. PTI\n";
-                    cout << "3. PPP\n";
-                    cout << "Enter choice (1/2/3): ";
-                    partyChoice = _getch();
-                    cout << partyChoice << endl;
-
-                    switch (partyChoice) {
-                    case '1':
-                        party = "PMLN";
-                        break;
-                    case '2':
-                        party = "PTI";
-                        break;
-                    case '3':
-                        party = "PPP";
-                        break;
-                    default:
-                        cout << "Invalid choice. Please select 1, 2, or 3.\n";
-                    }
-                } while (partyChoice != '1' && partyChoice != '2' && partyChoice != '3');
-
-                nationalCandidates[nextNationalIndex].setName(name);
-                nationalCandidates[nextNationalIndex].setParty(party);
-                nationalCandidates[nextNationalIndex].setVotes(0);
-                fout << candidateNumber << "\t" << name << "\t" << party << "\t0\n";
-                nextNationalIndex++;
-            }
-
-            fout.close();
-        }
-    
-        void vote(int index) override {
-            if (index >= 1 && index <= nextNationalIndex)
-                nationalCandidates[index - 1].incrementVotes(index, "nationalCandidates.txt");
-            else
-                cout << "Invalid national candidate index!\n";
-        }
-    
-        void showResults() const override {
-            cout << "\n=== National Election Results for " << title << " ===\n";
-            for (int i = 0; i < nextNationalIndex; ++i)
-                cout << nationalCandidates[i].getCandidateInfo() << endl;
-        }
-    };
-
-
-    //main 
-
-    int main() 
-    {
-        char choice;
-        do {
-            system("cls");
-            cout << "==============================\n";
-            cout << "   ELECTRONIC VOTING SYSTEM   \n";
-            cout << "==============================\n";
-            cout << "1. Login as Admin\n";
-            cout << "2. Login as Voter\n";
-            cout << "3. View Rules\n";
-            cout << "4. Exit\n";
-            cout << "\nEnter Your Choice\n";
-
-            choice = _getch();
-            cout << choice << endl;
-
-            switch (choice) {
-            case '1': adminPortal(); break;
-            case '2': votersPortal(); break;
-            case '3': rules(); break;
-            case '4':
-                cout << "\nExiting the program.\n";
-                break;
-            default:
-                cout << "\nInvalid choice. Please try again.\n";
-                Sleep(1000);
-            }
-        } while (choice != '4');
-
-        return 0;
-    }
-
-    void adminPortal() {
+    string name, email, pass;
+    for (int j = 0; j < count; j++) {
         system("cls");
-        User* admin = new Admin(15, "Aizaz Akmal", "admin123", "qwer");
+        cout << "\n--- Registering Voter number " << index << " ---\n";
+        cout << "Set name: ";
+        getline(cin, name);
 
-        string email, pass;
-        cout << "\n--- Admin Login ---\n";
-        cout << "Enter Email: ";
-        getline(cin, email);
-        cout << "Enter Password: ";
-        pass = getMaskedPassword();
+        bool emailExists = false;
+        do {
+            emailExists = false;
+            cout << "Set Email: ";
+            getline(cin, email);
 
-        if (admin->loginE(email) && admin->loginP(pass)) {
-            admin->show();
-            system("pause");
-            adminDashboard();
-        }
-        else {
-            cout << "\nEntered email or password is incorrect!\n";
-            cout << "Returning back to main menu...";
-            Sleep(1500);
-            cout << "...\n";
-        }
+            for (int k = 0; k < index; k++) {
+                if (voters[k]->getEmail() == email) {
+                    cout << "Error: This email is already registered. Please enter a different email.\n";
+                    emailExists = true;
+                    break;
+                }
+            }
+        } while (emailExists);
 
-        delete admin;
+        cout << "Set Password: ";
+        getline(cin, pass);
+
+        voters[index] = new Voter(index, name, email, pass);
+        index++;
+        Sleep(500);
     }
-    // admin dshboard todo;
-    void adminDashboard(){}
-    
-    
-    #endif
+
+    cout << "\nAll voters registered successfully!\n";
+    system("pause");
+
+    for (int j = 0; j < index; j++) {
+        delete voters[j];
+    }
+}
+
+void displayVoters() {
+    Voter* localVoters[50];
+    Voter* nationalVoters[50];
+    int localCount = 0, nationalCount = 0;
+
+    localCount = loadVotersFromFile(localVoters, 0, "votedLocals.txt");
+    nationalCount = loadVotersFromFile(nationalVoters, 0, "votedNationals.txt");
+
+    cout << "Combined Voter Information (Local + National):\n";
+    cout << "--------------------------------------------------\n";
+
+    for (int i = 0; i < localCount; i++) {
+        int voterId = localVoters[i]->getID();
+        string name = localVoters[i]->getName();
+        int localVotes = localVoters[i]->getVotes();
+
+        int nationalVotes = 0;
+        for (int j = 0; j < nationalCount; j++) {
+            if (nationalVoters[j]->getID() == voterId) {
+                nationalVotes = nationalVoters[j]->getVotes();
+                break;
+            }
+        }
+
+        cout << "Voter ID: " << voterId << ", Name: " << name
+            << ", Local Votes: " << localVotes
+            << ", National Votes: " << nationalVotes << "\n";
+    }
+    system("pause");
+
+    for (int i = 0; i < localCount; i++) delete localVoters[i];
+    for (int i = 0; i < nationalCount; i++) delete nationalVoters[i];
+}
+
+bool isVotingPeriodActive(const string& filename = "votingPeriod.txt") {
+    ifstream inFile(filename);
+    if (!inFile.is_open()) {
+        cerr << "Error opening " << filename << "\n";
+        return false;
+    }
+
+    char status;
+    inFile >> status;
+    inFile.close();
+
+    return status == '1';
+}
+
+void setVotingPeriodStatus(bool isActive, const string& filename = "votingPeriod.txt") {
+    ofstream outFile(filename, ios::trunc);
+    if (!outFile.is_open()) {
+        cerr << "Error opening " << filename << " for writing.\n";
+        return;
+    }
+
+    outFile << (isActive ? '1' : '0');
+    outFile.close();
+    cout << "Voting Period Changes successfully !\n";
+    system("pause");
+}
+
+void displayElectionResults(const string& candidateFile, const string& title, Candidate* candidates, int& totalCount, int MAX) {
+    ifstream fin(candidateFile);
+    string line;
+    totalCount = 0;
+
+    while (getline(fin, line) && totalCount < MAX) {
+        stringstream ss(line);
+        int id, votes;
+        string name, party;
+
+        ss >> id;
+        ss.ignore();
+        getline(ss, name, '\t');
+        getline(ss, party, '\t');
+        ss >> votes;
+
+        candidates[totalCount].setName(name);
+        candidates[totalCount].setParty(party);
+        candidates[totalCount].setVotes(votes);
+        totalCount++;
+    }
+    fin.close();
+
+    string* parties = new string[MAX];
+    int* voteCounts = new int[MAX];
+    int partyCount = 0;
+
+    for (int i = 0; i < totalCount; ++i) {
+        string party = candidates[i].getParty();
+        int j;
+        for (j = 0; j < partyCount; ++j) {
+            if (parties[j] == party) {
+                voteCounts[j] += candidates[i].getVoteCount();
+                break;
+            }
+        }
+        if (j == partyCount) {
+            parties[partyCount] = party;
+            voteCounts[partyCount] = candidates[i].getVoteCount();
+            partyCount++;
+        }
+    }
+
+    for (int i = 0; i < partyCount - 1; ++i) {
+        for (int j = i + 1; j < partyCount; ++j) {
+            if (voteCounts[j] > voteCounts[i]) {
+                swap(voteCounts[i], voteCounts[j]);
+                swap(parties[i], parties[j]);
+            }
+        }
+    }
+
+    cout << "\n=== " << title << " ===\n";
+    cout << "Party Rankings:\n";
+    for (int i = 0; i < partyCount; ++i) {
+        cout << i + 1 << ". " << parties[i] << " - " << voteCounts[i] << " votes\n";
+    }
+
+    cout << "\nDetailed Candidate Results:\n";
+    for (int i = 0; i < totalCount; ++i) {
+        cout << candidates[i].getCandidateInfo() << endl;
+    }
+
+    delete[] parties;
+    delete[] voteCounts;
+}
+
+void viewResults() {
+    const int MAX = 50;
+    Candidate* candidates = new Candidate[MAX];
+
+    ifstream finTitle("electionTitles.txt");
+    string localTitle, nationalTitle;
+    getline(finTitle, localTitle);
+    getline(finTitle, nationalTitle);
+    finTitle.close();
+
+    int count;
+    displayElectionResults("localCandidates.txt", localTitle, candidates, count, MAX);
+    displayElectionResults("nationalCandidates.txt", nationalTitle, candidates, count, MAX);
+    system("pause");
+
+    delete[] candidates;
+}
+
+void adminDashboard()
+{
+    char choice;
+    do {
+        system("cls");
+        cout << "=============================\n";
+        cout << "        ADMIN DASHBOARD      \n";
+        cout << "=============================\n";
+        cout << "1. Create Local Election\n";
+        cout << "2. Create National Election\n";
+        cout << "3. Register New Voters\n";
+        cout << "4. Display Existing Voters\n";
+        cout << "5. Logout From Admin\n";
+        cout << "6. Start Voting Period\n";
+        cout << "7. End Voting Period\n";
+        cout << "8. View Election Results\n";
+        cout << "\nEnter Your Choice\n";
+
+        choice = _getch();
+        cout << choice << endl;
+
+        switch (choice)
+        {
+        case '1':
+            createLocalElection(); system("pause");
+            break;
+        case '2':
+            createNationalElection(); system("pause");
+            break;
+        case '3':
+            registerVoters();
+            break;
+        case '4':
+            displayVoters();
+            break;
+        case '5':
+            cout << "\nLogging out from admin dashboard...";
+            Sleep(700); cout << "......"; Sleep(700); cout << "....."; Sleep(300);
+            break;
+        case '6':
+            setVotingPeriodStatus(true);
+            break;
+        case '7':
+            setVotingPeriodStatus(false);
+            break;
+        case '8':
+            viewResults();
+            break;
+        default:
+            cout << "\nInvalid choice. Please try again.\n";
+            Sleep(1000);
+        }
+    } while (choice != '5');
+}
+
+void adminPortal()
+{
+    system("cls");
+    User* admin = new Admin(15, "Aizaz Akmal", "admin123", "qwer");
+
+    string email, pass;
+    cout << "\n--- Admin Login ---\n";
+    cout << "Enter Email: ";
+    getline(cin, email);
+    cout << "Enter Password: ";
+    pass = getMaskedPassword();
+
+    if (admin->loginE(email) && admin->loginP(pass)) {
+        admin->show();
+        system("pause");
+        adminDashboard();
+    }
+    else {
+        cout << "\nEntered email or password is incorrect!\n";
+        cout << "Returning back to main menu...";
+        Sleep(1500);
+        cout << "...\n";
+    }
+
+    delete admin;
+}
+
+void votersPortal() {
+    // to be implemented yet.
+}
+
+int main()
+{
+    char choice;
+    do {
+        system("cls");
+        cout << "==============================\n";
+        cout << "   ELECTRONIC VOTING SYSTEM   \n";
+        cout << "==============================\n";
+        cout << "1. Login as Admin\n";
+        cout << "2. Login as Voter\n";
+        cout << "3. View Rules\n";
+        cout << "4. Exit\n";
+        cout << "\nEnter Your Choice\n";
+
+        choice = _getch();
+        cout << choice << endl;
+
+        switch (choice) {
+        case '1': adminPortal(); break;
+        case '2': votersPortal(); break;
+        case '3': rules(); break;
+        case '4':
+            cout << "\nExiting the program.\n";
+            break;
+        default:
+            cout << "\nInvalid choice. Please try again.\n";
+            Sleep(1000);
+        }
+    } while (choice != '4');
+
+    return 0;
+}
