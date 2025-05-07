@@ -1,4 +1,4 @@
-#include "Updated_E_Voting_system.h"
+#include "Updated_E_Voting_System.h"
 #include <iostream>
 #include <conio.h> 
 #include <string>
@@ -9,31 +9,217 @@
 using namespace std;
 
 
-void rules() {
+void rules()
+{
+    system("cls");
+    cout << "Rules...\n";
+    // to be written yet.
+    system("pause");
+}
+
+string getMaskedPassword()
+{
+    string password;
+    char ch;
+    while (true)
+    {
+        password.clear();
+        cout << "Enter password (at least 4 characters): ";
+        while (true)
+        {
+            ch = _getch();
+            if (ch == '\r')
+            {
+                cout << endl;
+                break;
+            }
+            else if (ch == '\b')
+            {
+                if (!password.empty())
+                {
+                    password.pop_back();
+                    cout << "\b \b";
+                }
+            }
+            else
+            {
+                password += ch;
+                cout << '*';
+            }
+        }
+        if (password.length() < 4)
+        {
+            cout << "Password too short. Please enter at least 4 characters.\n";
+            Sleep(1000);
+            system("cls");
+        }
+        else
+        {
+            break;
+        }
+    }
+    return password;
+}
+
+int loadVotersFromFile(Voter* voters[], int index, const string& filename)
+{
+    fstream fin(filename);
+    if (!fin.is_open())
+    {
+        cout << "Error opening file: " << filename << endl;
+        return index;
+    }
+
+    string line;
+    while (getline(fin, line))
+    {
+        if (line.empty())
+            continue;
+
+        stringstream ss(line);
+        int id, voted;
+        string name, email, pass;
+
+        ss >> id;
+        ss.ignore();
+        getline(ss, name, '\t');
+        getline(ss, email, '\t');
+        getline(ss, pass, '\t');
+        ss >> voted;
+
+        voters[index++] = new Voter(id, name, email, pass, voted);
+    }
+
+    fin.close();
+    return index;
+}
+
+string getElectionTitle(bool isLocal)
+{
+    string title;
+    char choice;
+
+    do
+    {
+        cout << "\nDo you want to continue with default Title? (y/n)\n";
+        cout << "[Warning]: changing title will change default values of title!\n";
+        choice = _getch();
+        cout << choice << endl;
+
+        switch (choice)
+        {
+        case 'y':
+        case 'Y':
+        {
+            ifstream file("electionTitles.txt");
+            if (file.is_open())
+            {
+                string line1, line2;
+                getline(file, line1);
+                getline(file, line2);
+                file.close();
+
+                if (isLocal)
+                    title = line1;
+                else
+                    title = line2;
+                if (title.empty())
+                    cout << "Warning: Default title not found in file.\n";
+                else
+                    cout << "Default title fetched: " << title << endl;
+            }
+            else
+            {
+                cout << "Error: Could not open electionTitles.txt\n";
+            }
+            break;
+        }
+        case 'n':
+        case 'N':
+        {
+            cout << "Enter title for creating election:\n";
+            cin.ignore();
+            getline(cin, title);
+
+            string line1 = "", line2 = "";
+            ifstream fileIn("electionTitles.txt");
+            if (fileIn.is_open())
+            {
+                getline(fileIn, line1);
+                getline(fileIn, line2);
+                fileIn.close();
+            }
+
+            if (isLocal)
+                line1 = title;
+            else
+                line2 = title;
+
+            ofstream fileOut("electionTitles.txt");
+            if (fileOut.is_open())
+            {
+                fileOut << line1 << endl;
+                fileOut << line2 << endl;
+                fileOut.close();
+                cout << "Default title updated in file.\n";
+            }
+            else
+            {
+                cout << "Error: Could not write to electionTitles.txt\n";
+            }
+            break;
+        }
+        default:
+            cout << "Invalid input. Please enter 'y' or 'n'.\n";
+        }
+    } while (choice != 'y' && choice != 'Y' && choice != 'n' && choice != 'N');
+
+    return title;
+}
+
+void createLocalElection()
+{
+    int num;
+    string title = getElectionTitle(true);
+
+    cout << "Enter the number of candidates you want to add: ";
+    cin >> num;
+    if (cin.fail() || num <= 0)
+    {
+        cin.clear(); cin.ignore(1000, '\n');
+        cout << "Invalid number of candidates!\n";
+        return;
+    }
+    cin.ignore();
+
+    Election* e = new LocalElection(title, num);
+    e->begin();
+    delete e;
 
 }
 
-string getMaskedPassword() {
-   
+void createNationalElection()
+{
+    int num;
+    string title = getElectionTitle(false);
+
+    cout << "Enter the number of candidates you want to add: ";
+    cin >> num;
+    if (cin.fail() || num <= 0)
+    {
+        cin.clear(); cin.ignore(1000, '\n');
+        cout << "Invalid number of candidates!\n";
+        return;
+    }
+    cin.ignore();
+
+    Election* e = new NationalElection(title, num);
+    e->begin();
+    delete e;
 }
 
-int loadVotersFromFile(Voter* voters[], int index, const string& filename) {
-   
-}
-
-string getElectionTitle(bool isLocal) {
-   
-}
-
-void createLocalElection() {
-   
-}
-
-void createNationalElection() {
-  
-}
-
-void registerVoters() {
+void registerVoters()
+{
     Voter* voters[50];
     int index = 0;
     index = loadVotersFromFile(voters, index, "votedLocals.txt");
@@ -50,20 +236,24 @@ void registerVoters() {
     cin.ignore();
 
     string name, email, pass;
-    for (int j = 0; j < count; j++) {
+    for (int j = 0; j < count; j++)
+    {
         system("cls");
         cout << "\n--- Registering Voter number " << index << " ---\n";
         cout << "Set name: ";
         getline(cin, name);
 
         bool emailExists = false;
-        do {
+        do
+        {
             emailExists = false;
             cout << "Set Email: ";
             getline(cin, email);
 
-            for (int k = 0; k < index; k++) {
-                if (voters[k]->getEmail() == email) {
+            for (int k = 0; k < index; k++)
+            {
+                if (voters[k]->getEmail() == email)
+                {
                     cout << "Error: This email is already registered. Please enter a different email.\n";
                     emailExists = true;
                     break;
@@ -82,12 +272,14 @@ void registerVoters() {
     cout << "\nAll voters registered successfully!\n";
     system("pause");
 
-    for (int j = 0; j < index; j++) {
+    for (int j = 0; j < index; j++)
+    {
         delete voters[j];
     }
 }
 
-void displayVoters() {
+void displayVoters()
+{
     Voter* localVoters[50];
     Voter* nationalVoters[50];
     int localCount = 0, nationalCount = 0;
@@ -98,14 +290,17 @@ void displayVoters() {
     cout << "Combined Voter Information (Local + National):\n";
     cout << "--------------------------------------------------\n";
 
-    for (int i = 0; i < localCount; i++) {
+    for (int i = 0; i < localCount; i++)
+    {
         int voterId = localVoters[i]->getID();
         string name = localVoters[i]->getName();
         int localVotes = localVoters[i]->getVotes();
 
         int nationalVotes = 0;
-        for (int j = 0; j < nationalCount; j++) {
-            if (nationalVoters[j]->getID() == voterId) {
+        for (int j = 0; j < nationalCount; j++)
+        {
+            if (nationalVoters[j]->getID() == voterId)
+            {
                 nationalVotes = nationalVoters[j]->getVotes();
                 break;
             }
@@ -117,13 +312,17 @@ void displayVoters() {
     }
     system("pause");
 
-    for (int i = 0; i < localCount; i++) delete localVoters[i];
-    for (int i = 0; i < nationalCount; i++) delete nationalVoters[i];
+    for (int i = 0; i < localCount; i++)
+        delete localVoters[i];
+    for (int i = 0; i < nationalCount; i++)
+        delete nationalVoters[i];
 }
 
-bool isVotingPeriodActive(const string& filename = "votingPeriod.txt") {
+bool isVotingPeriodActive(const string& filename = "votingPeriod.txt")
+{
     ifstream inFile(filename);
-    if (!inFile.is_open()) {
+    if (!inFile.is_open())
+    {
         cerr << "Error opening " << filename << "\n";
         return false;
     }
@@ -137,7 +336,8 @@ bool isVotingPeriodActive(const string& filename = "votingPeriod.txt") {
 
 void setVotingPeriodStatus(bool isActive, const string& filename = "votingPeriod.txt") {
     ofstream outFile(filename, ios::trunc);
-    if (!outFile.is_open()) {
+    if (!outFile.is_open())
+    {
         cerr << "Error opening " << filename << " for writing.\n";
         return;
     }
@@ -148,12 +348,14 @@ void setVotingPeriodStatus(bool isActive, const string& filename = "votingPeriod
     system("pause");
 }
 
-void displayElectionResults(const string& candidateFile, const string& title, Candidate* candidates, int& totalCount, int MAX) {
+void displayElectionResults(const string& candidateFile, const string& title, Candidate* candidates, int& totalCount, int MAX)
+{
     ifstream fin(candidateFile);
     string line;
     totalCount = 0;
 
-    while (getline(fin, line) && totalCount < MAX) {
+    while (getline(fin, line) && totalCount < MAX)
+    {
         stringstream ss(line);
         int id, votes;
         string name, party;
@@ -175,25 +377,32 @@ void displayElectionResults(const string& candidateFile, const string& title, Ca
     int* voteCounts = new int[MAX];
     int partyCount = 0;
 
-    for (int i = 0; i < totalCount; ++i) {
+    for (int i = 0; i < totalCount; ++i)
+    {
         string party = candidates[i].getParty();
         int j;
-        for (j = 0; j < partyCount; ++j) {
-            if (parties[j] == party) {
+        for (j = 0; j < partyCount; ++j)
+        {
+            if (parties[j] == party)
+            {
                 voteCounts[j] += candidates[i].getVoteCount();
                 break;
             }
         }
-        if (j == partyCount) {
+        if (j == partyCount)
+        {
             parties[partyCount] = party;
             voteCounts[partyCount] = candidates[i].getVoteCount();
             partyCount++;
         }
     }
 
-    for (int i = 0; i < partyCount - 1; ++i) {
-        for (int j = i + 1; j < partyCount; ++j) {
-            if (voteCounts[j] > voteCounts[i]) {
+    for (int i = 0; i < partyCount - 1; ++i)
+    {
+        for (int j = i + 1; j < partyCount; ++j)
+        {
+            if (voteCounts[j] > voteCounts[i])
+            {
                 swap(voteCounts[i], voteCounts[j]);
                 swap(parties[i], parties[j]);
             }
@@ -202,12 +411,14 @@ void displayElectionResults(const string& candidateFile, const string& title, Ca
 
     cout << "\n=== " << title << " ===\n";
     cout << "Party Rankings:\n";
-    for (int i = 0; i < partyCount; ++i) {
+    for (int i = 0; i < partyCount; ++i)
+    {
         cout << i + 1 << ". " << parties[i] << " - " << voteCounts[i] << " votes\n";
     }
 
     cout << "\nDetailed Candidate Results:\n";
-    for (int i = 0; i < totalCount; ++i) {
+    for (int i = 0; i < totalCount; ++i)
+    {
         cout << candidates[i].getCandidateInfo() << endl;
     }
 
@@ -215,7 +426,8 @@ void displayElectionResults(const string& candidateFile, const string& title, Ca
     delete[] voteCounts;
 }
 
-void viewResults() {
+void viewResults()
+{
     const int MAX = 50;
     Candidate* candidates = new Candidate[MAX];
 
@@ -233,63 +445,67 @@ void viewResults() {
     delete[] candidates;
 }
 
-void adminDashboard() 
+void adminDashboard()
 {
-     char choice;
-     do {
-         system("cls");
-         cout << "=============================\n";
-         cout << "        ADMIN DASHBOARD      \n";
-         cout << "=============================\n";
-         cout << "1. Create Local Election\n";
-         cout << "2. Create National Election\n";
-         cout << "3. Register New Voters\n";
-         cout << "4. Display Existing Voters\n";
-         cout << "5. Logout From Admin\n";
-         cout << "6. Start Voting Period\n";
-         cout << "7. End Voting Period\n";
-         cout << "8. View Election Results\n";
-         cout << "\nEnter Your Choice\n";
+    char choice;
+    do
+    {
+        system("cls");
+        cout << "=============================\n";
+        cout << "        ADMIN DASHBOARD      \n";
+        cout << "=============================\n";
+        cout << "1. Create Local Election\n";
+        cout << "2. Create National Election\n";
+        cout << "3. Register New Voters\n";
+        cout << "4. Display Existing Voters\n";
+        cout << "5. Logout From Admin\n";
+        cout << "6. Start Voting Period\n";
+        cout << "7. End Voting Period\n";
+        cout << "8. View Election Results\n";
+        cout << "\nEnter Your Choice\n";
 
-           choice = _getch();
-           cout << choice << endl;
+        choice = _getch();
+        cout << choice << endl;
 
-         switch (choice) 
-         {
-         case '1': 
-             createLocalElection(); system("pause");
-             break;
-         case '2': 
-             createNationalElection(); system("pause");
-             break;
-         case '3': 
-             registerVoters(); 
-             break;
-         case '4': 
-             displayVoters(); 
-             break;
-         case '5':
-             cout << "\nLogging out from admin dashboard...";
-             Sleep(700); cout << "......"; Sleep(700); cout << "....."; Sleep(300);
-             break;
-         case '6': 
-             setVotingPeriodStatus(true); 
-             break;
-         case '7': 
-             setVotingPeriodStatus(false);  
-             break;
-         case '8': 
-             viewResults(); 
-             break;
-         default:
-             cout << "\nInvalid choice. Please try again.\n";
-             Sleep(1000);
-         }
-     } 
-     while (choice != '5');
+        switch (choice)
+        {
+        case '1':
+            createLocalElection(); system("pause");
+            break;
+        case '2':
+            createNationalElection(); system("pause");
+            break;
+        case '3':
+            registerVoters();
+            break;
+        case '4':
+            displayVoters();
+            break;
+        case '5':
+            cout << "\nLogging out from admin dashboard...";
+            Sleep(700);
+            cout << "......";
+            Sleep(700);
+            cout << ".....";
+            Sleep(300);
+            break;
+        case '6':
+            setVotingPeriodStatus(true);
+            break;
+        case '7':
+            setVotingPeriodStatus(false);
+            break;
+        case '8':
+            viewResults();
+            break;
+        default:
+            cout << "\nInvalid choice. Please try again.\n";
+            Sleep(1000);
+        }
+    } while (choice != '5');
 }
 
-void adminPortal() 
+void adminPortal()
 {
     system("cls");
     User* admin = new Admin(15, "Aizaz Akmal", "admin123", "qwer");
@@ -301,12 +517,14 @@ void adminPortal()
     cout << "Enter Password: ";
     pass = getMaskedPassword();
 
-    if (admin->loginE(email) && admin->loginP(pass)) {
+    if (admin->loginE(email) && admin->loginP(pass))
+    {
         admin->show();
         system("pause");
         adminDashboard();
     }
-    else {
+    else
+    {
         cout << "\nEntered email or password is incorrect!\n";
         cout << "Returning back to main menu...";
         Sleep(1500);
@@ -316,14 +534,16 @@ void adminPortal()
     delete admin;
 }
 
-void votersPortal() {
+void votersPortal()
+{
     // to be implemented yet.
 }
 
-int main() 
+int main()
 {
     char choice;
-    do {
+    do
+    {
         system("cls");
         cout << "==============================\n";
         cout << "   ELECTRONIC VOTING SYSTEM   \n";
@@ -337,10 +557,17 @@ int main()
         choice = _getch();
         cout << choice << endl;
 
-        switch (choice) {
-        case '1': adminPortal(); break;
-        case '2': votersPortal(); break;
-        case '3': rules(); break;
+        switch (choice)
+        {
+        case '1':
+            adminPortal();
+            break;
+        case '2':
+            votersPortal();
+            break;
+        case '3':
+            rules();
+            break;
         case '4':
             cout << "\nExiting the program.\n";
             break;
