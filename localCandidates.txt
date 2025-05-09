@@ -1,0 +1,4 @@
+1	imran	PTI	2
+2	nawaz	PMLN	0
+3	bhuto	PPP	0
+4	waseem	PTI	0
