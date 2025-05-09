@@ -13,8 +13,17 @@ void rules()
 {
     system("cls");
     cout << "Rules...\n";
-    // to be written yet.
-    system("pause");
+       cout << "1. Only admin can register voters & candidates. " << endl;
+       cout << "2. Only admin can start election period, voters can ony vote when election period is in start mode. " << endl;
+       cout << "3. Admin can not register more tha 1 voter with same email, system can automatically detect it. " << endl;
+       cout << "4. If admin change election title, it changes over all title for that category. " << endl;
+       cout << "5. Each voter can cast 2 votes in local election categories but both of candidates should be unique, casting both votes to same candidate gives error. " << endl;
+       cout << "6. Each voter can cast only single vote in national election category." << endl;
+       cout << "7. Admin Can view results of election even during elections or after election. " << endl;
+       cout << "8. Results show the ranking of each party , by summing votes of individuals of that party. " << endl;
+       cout << "9. Results also show votes of each candidate of each category. " << endl;
+       cout << "10. Admin must set password of voters account atleast 4 characters long, because when voter logg in there is a password constraint which gives error on password entered is less than 4 characters. " << endl;
+       system("pause");
 }
 
 string getMaskedPassword()
@@ -470,10 +479,12 @@ void adminDashboard()
         switch (choice)
         {
         case '1':
-            createLocalElection(); system("pause");
+            createLocalElection(); 
+            system("pause");
             break;
         case '2':
-            createNationalElection(); system("pause");
+            createNationalElection(); 
+            system("pause");
             break;
         case '3':
             registerVoters();
