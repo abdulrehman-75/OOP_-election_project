@@ -534,6 +534,167 @@ void adminPortal()
     delete admin;
 }
 
+
+int countVoterVotes(const string& votedFile, const string& voterEmail) {
+    int count = 0;
+    ifstream fin(votedFile);
+    string line;
+
+    if (!fin.is_open()) {
+        cout << "Warning: Could not open " << votedFile << " to count votes." << endl;
+        return count;
+    }
+
+    while (getline(fin, line)) {
+        stringstream ss(line);
+        string fileEmail;
+        getline(ss, fileEmail, '\t');
+
+        if (fileEmail == voterEmail) {
+            count++;
+        }
+    }
+    fin.close();
+
+    return count;
+}
+
+void getVotedCandidates(const string& votedFile, const string& voterEmail, string votedNames[], int& count) {
+    count = 0;
+    ifstream fin(votedFile);
+    string line;
+
+    if (!fin.is_open()) {
+        cout << "Warning: Could not open " << votedFile << " to retrieve voted candidates." << endl;
+        return;
+    }
+
+    while (getline(fin, line)) {
+        stringstream ss(line);
+        string fileEmail, candidateName;
+        getline(ss, fileEmail, '\t');
+        getline(ss, candidateName);
+
+        if (fileEmail == voterEmail) {
+            votedNames[count++] = candidateName;
+        }
+    }
+    fin.close();
+}
+
+
+void updateVoterVoteCount(const string& voterEmail, const string& voterFile) {
+    const int MAX_VOTERS = 100;
+    string tempFile = "temp_" + voterFile;
+    ifstream fin(voterFile);
+    ofstream fout(tempFile);
+
+    if (!fin.is_open() || !fout.is_open()) {
+        cout << "Error: Could not open voter file for updating vote count." << endl;
+        return;
+    }
+
+    string line;
+    bool found = false;
+
+    while (getline(fin, line)) {
+        stringstream ss(line);
+        string id, name, email, pass, voteCount;
+
+        getline(ss, id, '\t');
+        getline(ss, name, '\t');
+        getline(ss, email, '\t');
+        getline(ss, pass, '\t');
+        getline(ss, voteCount);
+
+        if (email == voterEmail) {
+            int count = stoi(voteCount);
+            count++;
+            voteCount = to_string(count);
+            found = true;
+        }
+
+        fout << id << '\t' << name << '\t' << email << '\t' << pass << '\t' << voteCount << endl;
+    }
+
+    fin.close();
+    fout.close();
+    if (found) {
+        remove(voterFile.c_str());
+        rename(tempFile.c_str(), voterFile.c_str());
+        cout << "Voter vote count updated successfully." << endl;
+    }
+    else {
+        remove(tempFile.c_str());
+        cout << "Voter not found in the file." << endl;
+    }
+}
+
+
+void voteLocal(int index, Voter* voters[]) {
+    processVote(index, voters, "localCandidates.txt", "localVoteRecords.txt", 2, true);
+}
+
+void voteNational(int index, Voter* voters[]) {
+    processVote(index, voters, "nationalCandidates.txt", "nationalVoteRecords.txt", 1, false);
+}
+
+
+void votersDashboard(int index, Voter* votersLocal[], Voter* votersNational[]) {
+    char choice;
+    do {
+        system("cls");
+
+        string voterEmail = votersLocal[index]->getEmail();
+
+        int localVotesUsed = countVoterVotes("localVoteRecords.txt", voterEmail);
+        int nationalVotesUsed = countVoterVotes("nationalVoteRecords.txt", voterEmail);
+
+        cout << "==== RULES ====\nWelcome Voter! you can cast your vote to one and only one candidate \nstanding in national elections where as you can cast total 2 votes to two \ndifferent candidates standing in local elections." << endl << endl;
+        cout << "Your votes remaining: \n";
+        cout << "Local Elections: " << (2 - localVotesUsed) << " out of 2\n";
+        cout << "National Elections: " << (1 - nationalVotesUsed) << " out of 1\n\n";
+        cout << "=============================\n";
+        cout << "        VOTER DASHBOARD      \n";
+        cout << "=============================\n";
+        cout << "1. Vote Local Candidate" << (localVotesUsed >= 2 ? " (No votes remaining)" : "") << "\n";
+        cout << "2. Vote National Candidate" << (nationalVotesUsed >= 1 ? " (No votes remaining)" : "") << "\n";
+        cout << "3. Logout\n";
+        cout << "\nEnter Your Choice\n";
+        choice = _getch();
+        cout << choice << endl;
+
+        switch (choice) {
+        case '1':
+            if (localVotesUsed >= 2) {
+                cout << "\nYou have already used all your local votes!\n";
+                system("pause");
+            }
+            else {
+                voteLocal(index, votersLocal);
+            }
+            break;
+        case '2':
+            if (nationalVotesUsed >= 1) {
+                cout << "\nYou have already used your national vote!\n";
+                system("pause");
+            }
+            else {
+                voteNational(index, votersNational);
+            }
+            break;
+        case '3':
+            cout << "\nLogging out from voters dashboard...";
+            Sleep(700); cout << "......"; Sleep(700); cout << "....."; Sleep(300);
+            break;
+        default:
+            cout << "\nInvalid choice. Please try again.\n";
+            Sleep(1000);
+        }
+    } while (choice != '3');
+}
+
+
 void votersPortal()
 {
     // to be implemented yet.
