@@ -181,7 +181,8 @@ string getElectionTitle(bool isLocal)
         default:
             cout << "Invalid input. Please enter 'y' or 'n'.\n";
         }
-    } while (choice != 'y' && choice != 'Y' && choice != 'n' && choice != 'N');
+    } 
+    while (choice != 'y' && choice != 'Y' && choice != 'n' && choice != 'N');
 
     return title;
 }
@@ -268,7 +269,8 @@ void registerVoters()
                     break;
                 }
             }
-        } while (emailExists);
+        } 
+        while (emailExists);
 
         cout << "Set Password: ";
         getline(cin, pass);
@@ -357,7 +359,7 @@ void setVotingPeriodStatus(bool isActive, const string& filename = "votingPeriod
     system("pause");
 }
 
-void displayElectionResults(const string& candidateFile, const string& title, Candidate* candidates, int& totalCount, int MAX)
+void dis playElectionResults(const string& candidateFile, const string& title, Candidate* candidates, int& totalCount, int MAX)
 {
     ifstream fin(candidateFile);
     string line;
@@ -513,7 +515,8 @@ void adminDashboard()
             cout << "\nInvalid choice. Please try again.\n";
             Sleep(1000);
         }
-    } while (choice != '5');
+    } 
+    while (choice != '5');
 }
 
 void adminPortal()
@@ -546,22 +549,26 @@ void adminPortal()
 }
 
 
-int countVoterVotes(const string& votedFile, const string& voterEmail) {
+int countVoterVotes(const string& votedFile, const string& voterEmail) 
+{
     int count = 0;
     ifstream fin(votedFile);
     string line;
 
-    if (!fin.is_open()) {
+    if (!fin.is_open()) 
+    {
         cout << "Warning: Could not open " << votedFile << " to count votes." << endl;
         return count;
     }
 
-    while (getline(fin, line)) {
+    while (getline(fin, line)) 
+    {
         stringstream ss(line);
         string fileEmail;
         getline(ss, fileEmail, '\t');
 
-        if (fileEmail == voterEmail) {
+        if (fileEmail == voterEmail) 
+        {
             count++;
         }
     }
@@ -575,18 +582,21 @@ void getVotedCandidates(const string& votedFile, const string& voterEmail, strin
     ifstream fin(votedFile);
     string line;
 
-    if (!fin.is_open()) {
+    if (!fin.is_open()) 
+    {
         cout << "Warning: Could not open " << votedFile << " to retrieve voted candidates." << endl;
         return;
     }
 
-    while (getline(fin, line)) {
+    while (getline(fin, line)) 
+    {
         stringstream ss(line);
         string fileEmail, candidateName;
         getline(ss, fileEmail, '\t');
         getline(ss, candidateName);
 
-        if (fileEmail == voterEmail) {
+        if (fileEmail == voterEmail) 
+        {
             votedNames[count++] = candidateName;
         }
     }
@@ -594,13 +604,15 @@ void getVotedCandidates(const string& votedFile, const string& voterEmail, strin
 }
 
 
-void updateVoterVoteCount(const string& voterEmail, const string& voterFile) {
+void updateVoterVoteCount(const string& voterEmail, const string& voterFile) 
+{
     const int MAX_VOTERS = 100;
     string tempFile = "temp_" + voterFile;
     ifstream fin(voterFile);
     ofstream fout(tempFile);
 
-    if (!fin.is_open() || !fout.is_open()) {
+    if (!fin.is_open() || !fout.is_open()) 
+    {
         cout << "Error: Could not open voter file for updating vote count." << endl;
         return;
     }
@@ -608,7 +620,8 @@ void updateVoterVoteCount(const string& voterEmail, const string& voterFile) {
     string line;
     bool found = false;
 
-    while (getline(fin, line)) {
+    while (getline(fin, line)) 
+    {
         stringstream ss(line);
         string id, name, email, pass, voteCount;
 
@@ -618,30 +631,33 @@ void updateVoterVoteCount(const string& voterEmail, const string& voterFile) {
         getline(ss, pass, '\t');
         getline(ss, voteCount);
 
-        if (email == voterEmail) {
+        if (email == voterEmail) 
+        {
             int count = stoi(voteCount);
             count++;
             voteCount = to_string(count);
             found = true;
         }
-
         fout << id << '\t' << name << '\t' << email << '\t' << pass << '\t' << voteCount << endl;
     }
 
     fin.close();
     fout.close();
-    if (found) {
+    if (found) 
+    {
         remove(voterFile.c_str());
         rename(tempFile.c_str(), voterFile.c_str());
         cout << "Voter vote count updated successfully." << endl;
     }
-    else {
+    else 
+    {
         remove(tempFile.c_str());
         cout << "Voter not found in the file." << endl;
     }
 }
 
-void castVoteFromFile(const string& candidateFile, const string alreadyVoted[], int votedCount, const string& voterEmail) {
+void castVoteFromFile(const string& candidateFile, const string alreadyVoted[], int votedCount, const string& voterEmail) 
+{
     const int MAX = 50;
     Candidate* candidates = new Candidate[MAX];
     int* candidateIds = new int[MAX];  // Store IDs separately
@@ -662,7 +678,8 @@ void castVoteFromFile(const string& candidateFile, const string alreadyVoted[], 
     int votesLeft = voteLimit - votedCount;
 
     // Hard check - if no votes left, prevent continuing
-    if (votesLeft <= 0) {
+    if (votesLeft <= 0) 
+    {
         cout << "\nYou have already used all your votes (" << voteLimit << ") for this category!" << endl;
         delete[] candidates;
         delete[] candidateIds;
@@ -671,14 +688,16 @@ void castVoteFromFile(const string& candidateFile, const string alreadyVoted[], 
     }
 
     ifstream fin(candidateFile);
-    if (!fin.is_open()) {
+    if (!fin.is_open()) 
+    {
         cout << "Error opening file: " << candidateFile << endl;
         delete[] candidates;
         delete[] candidateIds;
         return;
     }
 
-    while (getline(fin, line) && count < MAX) {
+    while (getline(fin, line) && count < MAX) 
+    {
         stringstream ss(line);
         int id, votes;
         string name, party;
@@ -697,7 +716,8 @@ void castVoteFromFile(const string& candidateFile, const string alreadyVoted[], 
     }
     fin.close();
 
-    if (count == 0) {
+    if (count == 0) 
+    {
         cout << "No candidates found.\n";
         delete[] candidates;
         delete[] candidateIds;
@@ -710,12 +730,15 @@ void castVoteFromFile(const string& candidateFile, const string alreadyVoted[], 
     cout << "\nChoose a candidate to vote for:\n";
 
     // Display candidates with voted status
-    for (int i = 0; i < count; ++i) {
+    for (int i = 0; i < count; ++i) 
+    {
         bool alreadyVotedForThisCandidate = false;
 
         // Check if voter already voted for this candidate
-        for (int j = 0; j < votedCount; ++j) {
-            if (candidates[i].getName() == alreadyVoted[j]) {
+        for (int j = 0; j < votedCount; ++j) 
+        {
+            if (candidates[i].getName() == alreadyVoted[j]) 
+            {
                 alreadyVotedForThisCandidate = true;
                 break;
             }
@@ -723,7 +746,8 @@ void castVoteFromFile(const string& candidateFile, const string alreadyVoted[], 
         cout << (i + 1) << ". Name: " << candidates[i].getName()
             << ", Party: " << candidates[i].getParty();
 
-        if (alreadyVotedForThisCandidate) {
+        if (alreadyVotedForThisCandidate) 
+        {
             cout << " (Already Voted)";
         }
         cout << endl;
@@ -733,14 +757,16 @@ void castVoteFromFile(const string& candidateFile, const string alreadyVoted[], 
     int index;
     cin >> index;
 
-    if (index == 0) {
+    if (index == 0) 
+    {
         cout << "Vote canceled." << endl;
         delete[] candidates;
         delete[] candidateIds;
         system("pause");
         return;
     }
-    if (cin.fail() || index < 1 || index > count) {
+    if (cin.fail() || index < 1 || index > count)
+    {
         cin.clear();
         cin.ignore(1000, '\n');
         cout << "Invalid choice!" << endl;
@@ -755,8 +781,10 @@ void castVoteFromFile(const string& candidateFile, const string alreadyVoted[], 
     string selectedName = candidates[arrayIndex].getName();
 
     // Check if voter already voted for this candidate
-    for (int j = 0; j < votedCount; j++) {
-        if (selectedName == alreadyVoted[j]) {
+    for (int j = 0; j < votedCount; j++) 
+    {
+        if (selectedName == alreadyVoted[j]) 
+        {
             cout << "\nYou have already voted for this candidate. Please choose another candidate.\n";
             delete[] candidates;
             delete[] candidateIds;
@@ -766,7 +794,8 @@ void castVoteFromFile(const string& candidateFile, const string alreadyVoted[], 
     }
 
     // Final check before casting vote
-    if (votedCount >= voteLimit) {
+    if (votedCount >= voteLimit) 
+    {
         cout << "\nERROR: You have already used all your votes for this category!\n";
         delete[] candidates;
         delete[] candidateIds;
@@ -780,9 +809,11 @@ void castVoteFromFile(const string& candidateFile, const string alreadyVoted[], 
     candidates[arrayIndex].incrementVotes(candidateID, candidateFile);
 
     // Record the vote in the correct voting record file
-    if (!selectedName.empty()) {
+    if (!selectedName.empty()) 
+    {
         ofstream fout(voteRecordFile, ios::app);
-        if (fout.is_open()) {
+        if (fout.is_open()) 
+        {
             fout << voterEmail << '\t' << selectedName << '\n';
             fout.close();
 
@@ -796,11 +827,13 @@ void castVoteFromFile(const string& candidateFile, const string alreadyVoted[], 
             int newVotesLeft = voteLimit - (votedCount + 1);
             cout << "You now have " << newVotesLeft << " vote(s) left for this category.\n";
         }
-        else {
+        else 
+        {
             cout << "Error opening vote record file: " << voteRecordFile << endl;
         }
     }
-    else {
+    else 
+    {
         cout << "Selected candidate name is empty. Vote not recorded.\n";
     }
 
@@ -809,12 +842,14 @@ void castVoteFromFile(const string& candidateFile, const string alreadyVoted[], 
     system("pause");
 }
 
-void processVote(int index, Voter* voters[], const string& candidateFile, const string& voteRecordFile, int voteLimit, bool isDoubleVote) {
+void processVote(int index, Voter* voters[], const string& candidateFile, const string& voteRecordFile, int voteLimit, bool isDoubleVote) 
+{    
     string email = voters[index]->getEmail();
 
     int votesUsed = countVoterVotes(voteRecordFile, email);
 
-    if (votesUsed >= voteLimit) {
+    if (votesUsed >= voteLimit) 
+    {
         cout << "Sorry, you have already used all your votes (" << voteLimit << ") for this category!" << endl;
         system("pause");
         return;
@@ -829,18 +864,22 @@ void processVote(int index, Voter* voters[], const string& candidateFile, const 
     delete[] votedNames;
 }
 
-void voteLocal(int index, Voter* voters[]) {
+void voteLocal(int index, Voter* voters[]) 
+{
     processVote(index, voters, "localCandidates.txt", "localVoteRecords.txt", 2, true);
 }
 
-void voteNational(int index, Voter* voters[]) {
+void voteNational(int index, Voter* voters[]) 
+{
     processVote(index, voters, "nationalCandidates.txt", "nationalVoteRecords.txt", 1, false);
 }
 
 
-void votersDashboard(int index, Voter* votersLocal[], Voter* votersNational[]) {
+void votersDashboard(int index, Voter* votersLocal[], Voter* votersNational[]) 
+{    
     char choice;
-    do {
+    do 
+    {
         system("cls");
 
         string voterEmail = votersLocal[index]->getEmail();
@@ -862,22 +901,27 @@ void votersDashboard(int index, Voter* votersLocal[], Voter* votersNational[]) {
         choice = _getch();
         cout << choice << endl;
 
-        switch (choice) {
+        switch (choice) 
+        {
         case '1':
-            if (localVotesUsed >= 2) {
+            if (localVotesUsed >= 2) 
+            {
                 cout << "\nYou have already used all your local votes!\n";
                 system("pause");
             }
-            else {
+            else 
+            {
                 voteLocal(index, votersLocal);
             }
             break;
         case '2':
-            if (nationalVotesUsed >= 1) {
+            if (nationalVotesUsed >= 1) 
+            {
                 cout << "\nYou have already used your national vote!\n";
                 system("pause");
             }
-            else {
+            else 
+            {
                 voteNational(index, votersNational);
             }
             break;
@@ -889,13 +933,64 @@ void votersDashboard(int index, Voter* votersLocal[], Voter* votersNational[]) {
             cout << "\nInvalid choice. Please try again.\n";
             Sleep(1000);
         }
-    } while (choice != '3');
+    } 
+    while (choice != '3');
 }
-
 
 void votersPortal()
 {
-    // to be implemented yet
+    system("cls");
+    if (isVotingPeriodActive()) 
+    {
+        Voter* votersLocal[50];
+        Voter* votersNational[50];
+
+        int localCount = loadVotersFromFile(votersLocal, 0, "votedLocals.txt");
+        int nationalCount = loadVotersFromFile(votersNational, 0, "votedNationals.txt");
+
+        string email, pass;
+        cout << "\n--- Voter Login ---\n";
+        cout << "Enter Email: ";
+        getline(cin, email);
+        cout << "Enter Password: ";
+        pass = getMaskedPassword();
+
+        bool found = false;
+        int foundIndex = -1;
+
+        for (int i = 0; i < localCount; i++) 
+        {
+            if (votersLocal[i]->loginE(email) && votersLocal[i]->loginP(pass)) 
+            {
+                votersLocal[i]->show();
+                found = true;
+                foundIndex = i;
+                break;
+            }
+        }
+        if (found) 
+        {
+            cout << "Login Successful!" << endl;
+            cout << "Voter found at index " << foundIndex << endl;
+            votersDashboard(foundIndex, votersLocal, votersNational);
+        }
+        else 
+        {
+            cout << "\nEntered email or password is incorrect!\n";
+            cout << "Returning back to main menu...";
+            Sleep(1500);
+            cout << "...\n";
+        }
+        for (int i = 0; i < localCount; i++) 
+            delete votersLocal[i];
+        for (int i = 0; i < nationalCount; i++) 
+            delete votersNational[i];
+    }
+    else 
+    {
+        cout << "Voting period has not started yet!\n Ask your admin to start the voting Period." << endl;
+        system("pause");
+    }
 }
 
 int main()
