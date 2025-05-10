@@ -11,19 +11,19 @@ using namespace std;
 
 void rules()
 {
-    system("cls");
-    cout << "Rules...\n";
-       cout << "1. Only admin can register voters & candidates. " << endl;
-       cout << "2. Only admin can start election period, voters can ony vote when election period is in start mode. " << endl;
-       cout << "3. Admin can not register more tha 1 voter with same email, system can automatically detect it. " << endl;
-       cout << "4. If admin change election title, it changes over all title for that category. " << endl;
-       cout << "5. Each voter can cast 2 votes in local election categories but both of candidates should be unique, casting both votes to same candidate gives error. " << endl;
-       cout << "6. Each voter can cast only single vote in national election category." << endl;
-       cout << "7. Admin Can view results of election even during elections or after election. " << endl;
-       cout << "8. Results show the ranking of each party , by summing votes of individuals of that party. " << endl;
-       cout << "9. Results also show votes of each candidate of each category. " << endl;
-       cout << "10. Admin must set password of voters account atleast 4 characters long, because when voter logg in there is a password constraint which gives error on password entered is less than 4 characters. " << endl;
-       system("pause");
+   system("cls");
+   cout << "Rules...\n";
+      cout << "1. Only admin can register voters & candidates. " << endl;
+      cout << "2. Only admin can start election period, voters can ony vote when election period is in start mode. " << endl;
+      cout << "3. Admin can not register more tha 1 voter with same email, system can automatically detect it. " << endl;
+      cout << "4. If admin change election title, it changes over all title for that category. " << endl;
+      cout << "5. Each voter can cast 2 votes in local election categories but both of candidates should be unique, casting both votes to same candidate gives error. " << endl;
+      cout << "6. Each voter can cast only single vote in national election category." << endl;
+      cout << "7. Admin Can view results of election even during elections or after election. " << endl;
+      cout << "8. Results show the ranking of each party , by summing votes of individuals of that party. " << endl;
+      cout << "9. Results also show votes of each candidate of each category. " << endl;
+      cout << "10. Admin must set password of voters account atleast 4 characters long, because when voter log in there is a password constraint which gives error on password entered is less than 4 characters. " << endl;
+      system("pause");
 }
 
 string getMaskedPassword()
@@ -641,6 +641,193 @@ void updateVoterVoteCount(const string& voterEmail, const string& voterFile) {
     }
 }
 
+void castVoteFromFile(const string& candidateFile, const string alreadyVoted[], int votedCount, const string& voterEmail) {
+    const int MAX = 50;
+    Candidate* candidates = new Candidate[MAX];
+    int* candidateIds = new int[MAX];  // Store IDs separately
+    int count = 0;
+    string line;
+
+    // Determine which type of election and vote limit
+    bool isNationalElection = (candidateFile == "nationalCandidates.txt");
+    int voteLimit = isNationalElection ? 1 : 2;
+    string voteRecordFile = isNationalElection ? "nationalVoteRecords.txt" : "localVoteRecords.txt";
+    string voterFile = isNationalElection ? "votedNationals.txt" : "votedLocals.txt";
+
+    // Double-check the vote count directly from file for reliability
+    int actualVotesUsed = countVoterVotes(voteRecordFile, voterEmail);
+
+    // Use the higher vote count for safety
+    votedCount = max(votedCount, actualVotesUsed);
+    int votesLeft = voteLimit - votedCount;
+
+    // Hard check - if no votes left, prevent continuing
+    if (votesLeft <= 0) {
+        cout << "\nYou have already used all your votes (" << voteLimit << ") for this category!" << endl;
+        delete[] candidates;
+        delete[] candidateIds;
+        system("pause");
+        return;
+    }
+
+    ifstream fin(candidateFile);
+    if (!fin.is_open()) {
+        cout << "Error opening file: " << candidateFile << endl;
+        delete[] candidates;
+        delete[] candidateIds;
+        return;
+    }
+
+    while (getline(fin, line) && count < MAX) {
+        stringstream ss(line);
+        int id, votes;
+        string name, party;
+
+        ss >> id;
+        ss.ignore();
+        getline(ss, name, '\t');
+        getline(ss, party, '\t');
+        ss >> votes;
+
+        candidates[count].setName(name);
+        candidates[count].setParty(party);
+        candidates[count].setVotes(votes);
+        candidateIds[count] = id;  // Store ID separately
+        count++;
+    }
+    fin.close();
+
+    if (count == 0) {
+        cout << "No candidates found.\n";
+        delete[] candidates;
+        delete[] candidateIds;
+        return;
+    }
+
+    // Display votes left at the top
+    cout << "\nVotes left: " << votesLeft << " out of " << voteLimit << "\n";
+
+    cout << "\nChoose a candidate to vote for:\n";
+
+    // Display candidates with voted status
+    for (int i = 0; i < count; ++i) {
+        bool alreadyVotedForThisCandidate = false;
+
+        // Check if voter already voted for this candidate
+        for (int j = 0; j < votedCount; ++j) {
+            if (candidates[i].getName() == alreadyVoted[j]) {
+                alreadyVotedForThisCandidate = true;
+                break;
+            }
+        }
+        cout << (i + 1) << ". Name: " << candidates[i].getName()
+            << ", Party: " << candidates[i].getParty();
+
+        if (alreadyVotedForThisCandidate) {
+            cout << " (Already Voted)";
+        }
+        cout << endl;
+    }
+
+    cout << "\nEnter your choice number (1-" << count << ") or 0 to cancel: ";
+    int index;
+    cin >> index;
+
+    if (index == 0) {
+        cout << "Vote canceled." << endl;
+        delete[] candidates;
+        delete[] candidateIds;
+        system("pause");
+        return;
+    }
+    if (cin.fail() || index < 1 || index > count) {
+        cin.clear();
+        cin.ignore(1000, '\n');
+        cout << "Invalid choice!" << endl;
+        delete[] candidates;
+        delete[] candidateIds;
+        system("pause");
+        return;
+    }
+
+    // Adjust index for array access (convert from 1-based to 0-based)
+    int arrayIndex = index - 1;
+    string selectedName = candidates[arrayIndex].getName();
+
+    // Check if voter already voted for this candidate
+    for (int j = 0; j < votedCount; j++) {
+        if (selectedName == alreadyVoted[j]) {
+            cout << "\nYou have already voted for this candidate. Please choose another candidate.\n";
+            delete[] candidates;
+            delete[] candidateIds;
+            system("pause");
+            return;
+        }
+    }
+
+    // Final check before casting vote
+    if (votedCount >= voteLimit) {
+        cout << "\nERROR: You have already used all your votes for this category!\n";
+        delete[] candidates;
+        delete[] candidateIds;
+        system("pause");
+        return;
+    }
+    // Get the candidate ID from our separate array
+    int candidateID = candidateIds[arrayIndex];
+
+    // Use the actual candidate ID for the increment method
+    candidates[arrayIndex].incrementVotes(candidateID, candidateFile);
+
+    // Record the vote in the correct voting record file
+    if (!selectedName.empty()) {
+        ofstream fout(voteRecordFile, ios::app);
+        if (fout.is_open()) {
+            fout << voterEmail << '\t' << selectedName << '\n';
+            fout.close();
+
+            // Update the voter's vote count in the correct voter file
+            updateVoterVoteCount(voterEmail, voterFile);
+
+            cout << "\nVote cast successfully for: " << selectedName
+                << " (" << candidates[arrayIndex].getParty() << ")\n";
+
+            // Show updated votes remaining
+            int newVotesLeft = voteLimit - (votedCount + 1);
+            cout << "You now have " << newVotesLeft << " vote(s) left for this category.\n";
+        }
+        else {
+            cout << "Error opening vote record file: " << voteRecordFile << endl;
+        }
+    }
+    else {
+        cout << "Selected candidate name is empty. Vote not recorded.\n";
+    }
+
+    delete[] candidates;
+    delete[] candidateIds;
+    system("pause");
+}
+
+void processVote(int index, Voter* voters[], const string& candidateFile, const string& voteRecordFile, int voteLimit, bool isDoubleVote) {
+    string email = voters[index]->getEmail();
+
+    int votesUsed = countVoterVotes(voteRecordFile, email);
+
+    if (votesUsed >= voteLimit) {
+        cout << "Sorry, you have already used all your votes (" << voteLimit << ") for this category!" << endl;
+        system("pause");
+        return;
+    }
+
+    string* votedNames = new string[voteLimit];
+    int votedCount = 0;
+    getVotedCandidates(voteRecordFile, email, votedNames, votedCount);
+
+    castVoteFromFile(candidateFile, votedNames, votedCount, email);
+
+    delete[] votedNames;
+}
 
 void voteLocal(int index, Voter* voters[]) {
     processVote(index, voters, "localCandidates.txt", "localVoteRecords.txt", 2, true);
@@ -708,7 +895,7 @@ void votersDashboard(int index, Voter* votersLocal[], Voter* votersNational[]) {
 
 void votersPortal()
 {
-    // to be implemented yet.
+    // to be implemented yet
 }
 
 int main()
