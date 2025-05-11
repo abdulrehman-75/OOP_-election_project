@@ -1,0 +1,6 @@
+abdul123	imran
+abdul123	nawaz
+naeem123	imran
+naeem123	nawaz
+rehman123	bilawal
+rehman123	khan

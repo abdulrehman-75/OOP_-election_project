@@ -504,13 +504,13 @@ public:
         if (!fout.is_open()) return;
 
         int newCandidates = nationalCount - nextNationalIndex;
+        cin.ignore();
         for (int i = 0; i < newCandidates; ++i)
         {
             string name, party;
             int candidateNumber = nextNationalIndex + 1;
 
             cout << "Enter name of national candidate " << candidateNumber << ": ";
-            cin.ignore();
             getline(cin, name);
 
             char partyChoice;

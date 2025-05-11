@@ -1,2 +1,7 @@
-0	ali	ali12345	qwer	0
-1	haseeb	haseeb123	qwer	0
+0	abdul	abdul123	qwer	1
+1	rehman	rehman123	qwer	1
+2	naeem	naeem123	qwer	1
+3	moazam	moazam123	qwer	0
+4	mukaram	mukaram123	qwer	0
+5	ahmed	ahmed123	qwer	0
+6	aslam	aslam123	qwer	0

@@ -225,7 +225,7 @@ void createNationalElection()
 
     Election* e = new NationalElection(title, num);
     e->begin();
-    delete e;
+    delete e;
 }
 
 void registerVoters()
@@ -359,7 +359,7 @@ void setVotingPeriodStatus(bool isActive, const string& filename = "votingPeriod
     system("pause");
 }
 
-void dis playElectionResults(const string& candidateFile, const string& title, Candidate* candidates, int& totalCount, int MAX)
+void displayElectionResults(const string& candidateFile, const string& title, Candidate* candidates, int& totalCount, int MAX)
 {
     ifstream fin(candidateFile);
     string line;
@@ -911,6 +911,7 @@ void votersDashboard(int index, Voter* votersLocal[], Voter* votersNational[])
             }
             else 
             {
+                system("cls");
                 voteLocal(index, votersLocal);
             }
             break;
@@ -922,6 +923,7 @@ void votersDashboard(int index, Voter* votersLocal[], Voter* votersNational[])
             }
             else 
             {
+                system("cls");
                 voteNational(index, votersNational);
             }
             break;
