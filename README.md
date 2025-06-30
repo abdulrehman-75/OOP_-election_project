@@ -3,6 +3,7 @@ UET BSCS 2nd semester OOP subject final project
 this project is made on visual studio, on windows.
 if you want to run code yourself or version support (i.e lenux) click this link of replit:
 https://replit.com/@AbdulRehman112/C-OOP-voting-app#main.cpp
+hardcode admin login:  email: admin123,  pass: qwer
 
 
 This is a console-based application written in C++ designed to demonstrate all the core principles of Object-Oriented Programming (OOP). It is a great learning project for beginners to see how each OOP concept is implemented and used in a real-world scenario.
